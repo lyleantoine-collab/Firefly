@@ -1,4 +1,4 @@
-# config.yaml — TOTAL HOME DOMINATION v∞
+# config.yaml — TOTAL DOMINATION v∞
 models:
   - name: mistral
     model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit
@@ -33,5 +33,13 @@ models:
   - name: zigbee
     mqtt_url: http://localhost:8080/api/v1
   - name: z_wave
+    ha_url: http://homeassistant.local:8123
+    token: your_long_lived_token_here
+  - name: mqtt
+    broker: localhost
+    port: 1883
+    username: your_mqtt_user
+    password: your_mqtt_pass
+  - name: matter
     ha_url: http://homeassistant.local:8123
     token: your_long_lived_token_here
