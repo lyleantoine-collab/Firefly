@@ -1,10 +1,12 @@
 models:
   - name: mistral
-    model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit   # 4-bit tiny
+    model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit
   - name: llama
-    model_name: meta-llama/Llama-3.2-3B-Instruct                         # 4-bit quantized
+    model_name: meta-llama/Llama-3.2-3B-Instruct
   - name: gemma
-    model_name: google/gemma-2-2b-it                                     # 2B Google beast
+    model_name: google/gemma-2-2b-it
+  - name: phi
+    model_name: microsoft/Phi-3-mini-4k-instruct
   - name: openai
     api_key: your_openai_key_here
     model: gpt-4o
