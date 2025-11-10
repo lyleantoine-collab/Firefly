@@ -1,40 +1,64 @@
-# src/main.py — FINAL FULL-CHAIN VERSION
+# src/main.py — MODULAR, ROBUST, READY FOR REAL APIs
 import yaml
-from agents.grok_wrapper import GrokWrapper
-from agents.claude_wrapper import ClaudeWrapper
-from agents.jan_wrapper import JanWrapper
+from pathlib import Path
 
-# Load config from root (one level up)
-with open('../config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
+# Dynamic imports — only load what's in config
+WRAPPERS = {
+    "grok": "agents.grok_wrapper.GrokWrapper",
+    "openai": "agents.openai_wrapper.OpenAIWrapper",
+    "claude": "agents.claude_wrapper.ClaudeWrapper",
+    "jan": "agents.jan_wrapper.JanWrapper"
+}
 
-def run_anthology(input_text):
+def load_wrapper(name: str, params: dict):
+    if name not in WRAPPERS:
+        raise ValueError(f"Unknown model: {name}")
+    
+    module_path, class_name = WRAPPERS[name].rsplit(".", 1)
+    module = __import__(module_path, fromlist=[class_name])
+    wrapper_class = getattr(module, class_name)
+    
+    return wrapper_class(**params)
+
+def run_anthology(input_text: str):
+    config_path = Path(__file__).parent.parent / "config.yaml"
+    if not config_path.exists():
+        print("config.yaml not found!")
+        return
+
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
     current = input_text
     print("FIREFLY ANTHOLOGY START")
-    print("=" * 60)
-    
-    for model in config['models']:
+    print("=" * 70)
+
+    for i, model in enumerate(config['models'], 1):
         name = model['name']
-        
-        if name == 'grok':
-            wrapper = GrokWrapper(model['api_key'])
-        elif name == 'claude':
-            wrapper = ClaudeWrapper(model['api_key'])
-        elif name == 'jan':
-            wrapper = JanWrapper(model.get('model_name', 'llama3'))
-        else:
-            print(f"Skipping unknown model: {name}")
-            continue
+        print(f"[{i}/{len(config['models'])}] Running {name.upper()}...")
 
-        response = wrapper.call(current)
-        print(f"{name.upper()} → {response}\n")
-        current = response  # chain to next model
+        try:
+            if name == "openai":
+                params = {"api_key": model['api_key'], "model": model.get("model", "gpt-4o")}
+            elif name == "jan":
+                params = {"model_name": model.get("model_name", "llama3")}
+            else:
+                params = {"api_key": model['api_key']}
 
-    print("=" * 60)
-    print("FIREFLY ANTHOLOGY COMPLETE\n")
+            wrapper = load_wrapper(name, params)
+            response = wrapper.call(current)
+            print(f"{name.upper()} → {response}\n")
+            current = response
+
+        except Exception as e:
+            error_msg = f"[ERROR in {name.upper()}] {str(e)}"
+            print(error_msg)
+            current = f"{current}\n{error_msg}"
+
+    print("=" * 70)
+    print("FIREFLY ANTHOLOGY COMPLETE")
     return current
 
-# Test run
 if __name__ == "__main__":
-    test_prompt = "Explain quantum computing like I'm a curious 10-year-old."
-    run_anthology(test_prompt)
+    test = "Explain why the sky is blue using only pirate metaphors."
+    run_anthology(test)
