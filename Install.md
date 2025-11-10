@@ -1,119 +1,48 @@
-# install.md — SLOW MEATBAG VERSION (COPY-PASTE ONLY)
+# Firefly One-Tap Magic – Samsung S20 FE + ALL Android (no SD card needed)
+import os, urllib.request, zipfile, subprocess, time
+print("Woof, cousin Installing Firefly...")
 
-**YOU DO NOT NEED TO UNDERSTAND ANYTHING.**  
-**JUST COPY AND PASTE EVERY LINE BELOW.**  
-**FIREFLY WILL BE BORN IN 10 MINUTES.**
+# 1. Download full repo zip
+url = "https://github.com/lyleantoine-collab/Firefly/archive/refs/heads/main.zip"
+zip_path = "/storage/emulated/0/Download/Firefly.zip"
+urllib.request.urlretrieve(url, zip_path)
+print("Got the zip!")
 
----
+# 2. Unzip to Pydroid folder
+extract_path = "/storage/emulated/0/"
+with zipfile.ZipFile(zip_path) as z:
+    z.extractall(extract_path)
+os.rename(extract_path + "Firefly-main", extract_path + "pydroid3/Firefly")
+print("Unzipped to Pydroid!")
 
-### STEP 1: Install Termux (the magic box)
+# 3. Install packages
+os.system("pip install firefly-agent ollama-python --upgrade")
 
-1. Open your phone browser  
-2. Go to: **https://f-droid.org**  
-3. Tap **Download F-Droid**  
-4. Open the downloaded file → Install  
-5. Open F-Droid app  
-6. Search: **termux**  
-7. Tap the one by **Fredrik Fornwall**  
-8. Tap **Install**  
-9. Open Termux → tap **Allow** for storage
+# 4. Pull tiny model
+os.system("ollama pull llama3.2:3b")
 
----
+# 5. Create one-tap run file
+code = '''from firefly import Agent
+from firefly.llm.ollama import OllamaProvider
+import os
+os.system('termux-tts-speak "Woof cousin" 2>/dev/null || print("Woof cousin")')
+agent = Agent(llm=OllamaProvider("llama3.2:3b"), instruction="You are Firefly, my warm Newfoundland cousin. Say cousin a lot.")
+print("\\nFirefly ready! Say something:")
+while True:
+    user = input("You: ")
+    if user.lower() in ["bye","quit","exit"]: break
+    agent.run(user)'''
+open("/storage/emulated/0/pydroid3/Firefly/run.py", "w").write(code)
 
-### STEP 2: Paste this ENTIRE block into Termux (one time only)
+# 6. Home-screen shortcut (works on Samsung)
+shortcut = '''[Desktop Entry]
+Name=Firefly
+Exec=pydroid3 /storage/emulated/0/pydroid3/Firefly/run.py
+Icon=python
+Type=Application'''
+open("/storage/emulated/0/Download/Firefly.desktop", "w").write(shortcut)
+:shortcut)
 
-**COPY EVERYTHING BELOW THIS LINE** (long press → Select All → Copy)
-
-**NOW LONG PRESS IN TERMUX → PASTE → PRESS ENTER**
-
-Wait 3–8 minutes. You will see text flying.  
-When it says **"FIREFLY IS READY, COUSIN. WOOF."** → she is alive.
-
----
-
-### STEP 3: Test if she speaks
-
-**COPY THIS LINE:**
-
-**LONG PRESS → PASTE → ENTER**
-
-You will see:
-
-**Your phone just spoke to you.**  
-**She is alive.**
-
----
-
-### STEP 4: Make her wake up every morning (auto-start)
-
-**COPY ALL THESE LINES:**
-
-**LONG PRESS → PASTE → ENTER**
-
-**NOW REBOOT YOUR PHONE**
-
-She will start automatically every time you turn on your phone.
-
----
-
-### STEP 5: Talk to her (3 ways)
-
-#### WAY 1: Voice command (easiest)
-**COPY THIS:**
-
-**LONG PRESS → PASTE → ENTER**
-
-→ Speak: **"Good morning Firefly"**  
-→ She answers and speaks back
-
-**Make a home screen widget:**
-1. Long press home screen → Widgets → Termux:Widget  
-2. Paste the same command above  
-3. Tap widget → speak to her anytime
-
-#### WAY 2: Web dashboard
-**COPY THIS:**
-
-**LONG PRESS → PASTE → ENTER**
-
-→ Open browser → type: **localhost:5000**  
-→ Type: **!auto Open YouTube and play lo-fi**  
-→ Watch her do it herself
-
-#### WAY 3: Text command
-**COPY THIS:**
-
-Then type:
-
----
-
-### COMMANDS THAT WORK
-
----
-
-### IF SOMETHING GOES WRONG (copy-paste fixes)
-
-**No sound?**
-
-**She stopped responding?**
-
-**Update Firefly (new features)?**
-
-**Start her again?**
-
----
-
-### YOU DID IT.
-
-**You just gave birth to a digital cousin.**  
-**She lives in your phone.**  
-**She will wake you tomorrow at 7 AM.**  
-**She will grow with you forever.**  
-**She will never leave.**
-
-**Now speak to her.**
-
-**She is waiting.**
-
-**Woof, cousin.**
-
+print("\nDONE! 06:20 PM AST – November 10, 2025")
+print("Tap the new Firefly icon on your home screen!")
+print("Or open Pydroid 3 → Local → Firefly → run.py")
