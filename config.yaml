@@ -1,15 +1,14 @@
-```yaml
-# config.yaml — MISTRAL FIRST + SUPER LIGHTWEIGHT 4-BIT BONUS
+# config.yaml — MISTRAL FIRST + LLAMA 3.2 + ALL YOUR MODELS
 models:
-  # === 1. MISTRAL TINY 4-BIT (FASTEST, ~4 GB RAM, 20+ tokens/sec) ===
+  # === 1. MISTRAL TINY 4-BIT (FASTEST) ===
   - name: mistral
     model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit
 
-  # === 2. FALLBACK TO FULL POWER IF YOU WANT (uncomment to use) ===
-  # - name: mistral
-  #   model_name: mistralai/Mistral-7B-Instruct-v0.3
+  # === 2. LLAMA 3.2 3B (SUPER LIGHT, ~6 GB) ===
+  - name: llama
+    model_name: meta-llama/Llama-3.2-3B-Instruct
 
-  # === YOUR EXISTING MODELS (keep them exactly as-is) ===
+  # === YOUR CLOUD MODELS ===
   - name: openai
     api_key: your_openai_api_key_here
     model: gpt-4o
@@ -22,7 +21,3 @@ models:
 
   - name: jan
     model_name: llama3
-
-  # === FUTURE LOCAL MODELS (just add wrapper + entry) ===
-  # - name: llama
-  #   model_name: meta-llama/Llama-3.2-3B-Instruct
