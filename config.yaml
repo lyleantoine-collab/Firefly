@@ -1,4 +1,4 @@
-# config.yaml — ETERNAL FIREFLY v∞
+# config.yaml — TOTAL HOME DOMINATION v∞
 models:
   - name: mistral
     model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit
@@ -31,4 +31,7 @@ models:
     url: http://homeassistant.local:8123
     token: your_long_lived_token_here
   - name: zigbee
-    mqtt_url: http://localhost:8080/api/v1   # zigbee2mqtt REST API
+    mqtt_url: http://localhost:8080/api/v1
+  - name: z_wave
+    ha_url: http://homeassistant.local:8123
+    token: your_long_lived_token_here
