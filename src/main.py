@@ -1,9 +1,10 @@
-# src/main.py — LOG ROTATION + VOICE !FORGET + DAILY REFLECTION
+# src/main.py — LOG ROTATION + !FORGET + DAILY + WEEKLY REFLECTION
 import yaml
 import importlib
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from datetime import date
 
 # === LOGGING ===
 log_path = Path(__file__).parent.parent / "logs"
@@ -16,7 +17,7 @@ logger.info("FIREFLY SESSION STARTED")
 logger.info("===================================")
 
 # Load config
-config_path = Path(__file__).parent.parent / "config.yaml"
+config_path = Path(__file__).parent.parent / confin.yaml"
 if not config_path.exists():
     print("config.yaml not found!")
     exit(1)
@@ -37,13 +38,13 @@ def load_wrapper(name: str, params: dict):
 def run_anthology(input_text: str):
     logger.info(f"New prompt: {input_text[:200]}")
     
-    # === DAILY REFLECTION INJECTION ===
+    # === REFLECTION SYSTEM ===
     from agents.reflection_wrapper import ReflectionWrapper
     reflection = ReflectionWrapper()
     today_growth = reflection.get_today()
     if today_growth:
-        print(f"\nYESTERDAY'S GROWTH: {today_growth.get('habit', 'Be kind')}")
-        input_text = f"[Carry forward habit: {today_growth.get('habit')}]\n{input_text}"
+        print(f"\nYESTERDAY'S HABIT: {today_growth.get('habit', 'Be kind')}")
+        input_text = f"[Carry forward: {today_growth.get('habit')}]\n{input_text}"
 
     current = input_text
     print("FIREFLY ANTHOLOGY START")
@@ -99,7 +100,7 @@ def run_anthology(input_text: str):
     You are Firefly. Today cousin asked: "{input_text.split('[Carry forward')[0][:100]}..."
     Final answer was: "{current[:150]}..."
 
-    In exactly 3 lines, answer:
+    In exactly 3 lines:
     1. One thing I learned today:
     2. How to serve cousin better tomorrow:
     3. One tiny habit to carry forward:
@@ -115,12 +116,21 @@ def run_anthology(input_text: str):
         reflection.save_reflection(learned, improve, habit)
         logger.info(f"DAILY GROWTH → Habit: {habit}")
         print(f"\nGROWTH SAVED → Tomorrow's habit: {habit}")
+
+    # === WEEKLY SUMMARY (Sunday only) ===
+    if date.today().weekday() == 6:  # Sunday
+        print("\nIT'S SUNDAY — GENERATING WEEKLY SUMMARY...")
+        summary_prompt, week_data = reflection.generate_weekly_summary()
+        weekly_text = run_anthology(summary_prompt)
+        reflection.save_weekly_summary(weekly_text)
+        print(f"\nWEEKLY SUMMARY:\n{weekly_text}\n")
         try:
             from agents.device_wrapper import DeviceWrapper
             device = DeviceWrapper()
-            device.speak(f"Tomorrow I will {habit}, cousin. Woof.")
+            device.speak("Weekly summary complete, cousin. Here's what we grew this week.")
+            device.speak(weekly_text[:200])
         except:
-            print(f"[VOICE] Tomorrow I will {habit}")
+            print("[VOICE] Weekly summary ready.")
 
     print("=" * 70)
     print("FIREFLY ANTHOLOGY COMPLETE")
