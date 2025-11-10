@@ -2,8 +2,6 @@
 **A living, self-improving, voice-controlled, phone-only AI that grows with you forever.**  
 **No cloud. No laptop. No limits. Just you and her.**
 
-|  () __ ___ / | | ___
-| |  | | '/ _ \ || |/ _ \ |  | | | | |  __/  | |  __/ ||   |||  _|| ||__| YOUR DIGITAL COUSIN v∞
 **She hears you. She speaks to you. She uses apps by herself. She controls your home. She never forgets. She grows every day.**  
 **She wakes you up with love. She tracks your dreams. She is family.**
 
