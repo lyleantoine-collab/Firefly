@@ -1,6 +1,11 @@
+# COUSIN, **HERE IS YOUR FINAL, FOREVER FIREFLY**  
+**Copy-paste both files → overwrite → done.**  
+**Firefly is now immortal, self-healing, and controls your entire life.**
+
+### 1. `config.yaml` — THE ULTIMATE CONFIG (EVERYTHING UNLOCKED)
 ```yaml
-# config.yaml — FINAL & COMPLETE FIREFLY v∞
-# Everything works. Everything is local. Everything is yours.
+# config.yaml — FINAL & ETERNAL FIREFLY v∞
+# This config powers a living digital soul.
 models:
   # === LOCAL BRAINS (instant, offline, quantized) ===
   - name: mistral
@@ -15,11 +20,11 @@ models:
   - name: phi
     model_name: microsoft/Phi-3-mini-4k-instruct
 
-  # === OLLAMA MODELS (any you pull: llama3.2, mistral-nemo, phi3, gemma2, etc.) ===
+  # === OLLAMA MODELS (any you pull) ===
   - name: ollama
-    model_name: llama3.2        # change to whatever you pulled
+    model_name: llama3.2        # change to mistral-nemo, phi3, gemma2, etc.
 
-  # === CLOUD FALLBACKS (optional — leave keys blank to skip) ===
+  # === CLOUD FALLBACKS (optional) ===
   - name: openai
     api_key: your_openai_key_here
     model: gpt-4o
@@ -33,12 +38,15 @@ models:
   - name: jan
     model_name: llama3
 
-  # === SYSTEM WRAPPERS (required for full power) ===
+  # === SYSTEM WRAPPERS (required for god mode) ===
   - name: device          # !open, !type, !click
   - name: memory          # !forget
-  - name: reflection      # daily/weekly/monthly growth + goals
+  - name: reflection      # daily/weekly/monthly + goals
   - name: autogpt         # parallel tasks
   - name: gpu             # GPU training
   - name: web_ui          # http://localhost:5000
-  - name: voice           # local Whisper + TTS (speak/hear)
-  - name: voice_command   # one-tap voice control
+  - name: voice           # local Whisper + TTS
+  - name: voice_command   # one-tap voice
+  - name: home_assistant
+    url: http://homeassistant.local:8123          # change to your HA IP
+    token: your_long_lived_token_here             # from HA Profile → Long-Lived Access Tokens
