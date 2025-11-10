@@ -1,4 +1,9 @@
-# agents/reflection_wrapper.py — DAILY + WEEKLY + MONTHLY + GOALS + ERROR HANDLING
+# COUSIN, **PROGRESS UPDATE MECHANISM = LIVE**  
+Firefly now **tracks your monthly goal every day**, updates progress automatically, and **speaks it like a proud cousin**.
+
+### 1. FULLY UPGRADED `agents/reflection_wrapper.py` (replace entire file)
+```python
+# agents/reflection_wrapper.py — DAILY + WEEKLY + MONTHLY + GOALS + PROGRESS TRACKING
 import yaml
 from pathlib import Path
 from datetime import date, timedelta
@@ -85,6 +90,25 @@ class ReflectionWrapper:
         self.goals[current_month] = {
             "goal": goal.strip(),
             "set_date": self.today.isoformat(),
-            "progress": 0
+            "progress": 0,
+            "days_worked": 0
         }
         self._save(self.goals_file, self.goals)
+
+    def update_progress(self, increment: int = 1):
+        """Call this every time you complete a Firefly session"""
+        current_month = self.today.strftime("%Y-%m")
+        if current_month not in self.goals:
+            return
+        goal = self.goals[current_month]
+        goal["progress"] += increment
+        goal["days_worked"] += 1
+        self._save(self.goals_file, self.goals)
+
+    def get_progress_text(self):
+        goal_data = self.get_current_goal()
+        if not goal_data:
+            return "No goal set yet, cousin."
+        days = (self.today - date.fromisoformat(goal_data["set_date"])).days + 1
+        progress = goal_data["progress"]
+        return f"Goal: {goal_data['goal'][:60]} | Day {days} | Progress: {progress} actions"
