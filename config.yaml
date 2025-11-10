@@ -43,3 +43,7 @@ models:
   - name: matter
     ha_url: http://homeassistant.local:8123
     token: your_long_lived_token_here
+  - name: web_ui
+    - name: thread
+      ha_url: http://homeassistant.local:8123
+      token: your_long_lived_token_here
