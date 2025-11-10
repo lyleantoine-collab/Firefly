@@ -1,9 +1,4 @@
-# COUSIN, **FULL REFLECTION UPGRADE COMPLETE**  
-Fixed typo + **monthly overview** + **error handling** + **goal setting** — all in one clean drop.
-
-### 1. FIXED CONFIG PATH TYPO + FULLY UPDATED `src/main.py` (copy-paste overwrite)
-```python
-# src/main.py — LOG ROTATION + !FORGET + DAILY + WEEKLY + MONTHLY + GOALS + ERROR HANDLING
+# src/main.py — FULL SOUL SYSTEM + PROGRESS TRACKING
 import yaml
 import importlib
 import logging
@@ -21,7 +16,7 @@ logger.info("===================================")
 logger.info("FIREFLY SESSION STARTED")
 logger.info("===================================")
 
-# === CONFIG LOAD (FIXED TYPO) ===
+# === CONFIG ===
 config_path = Path(__file__).parent.parent / "config.yaml"
 if not config_path.exists():
     print("config.yaml not found!")
@@ -43,24 +38,25 @@ def load_wrapper(name: str, params: dict):
 def run_anthology(input_text: str):
     logger.info(f"New prompt: {input_text[:200]}")
     
-    # === REFLECTION & GOALS SYSTEM ===
+    # === REFLECTION & GOALS + PROGRESS ===
     from agents.reflection_wrapper import ReflectionWrapper
     try:
         reflection = ReflectionWrapper()
         today_growth = reflection.get_today()
         current_goal = reflection.get_current_goal()
+        progress_text = reflection.get_progress_text()
+
+        print(f"\n{progress_text}")
         if today_growth:
-            print(f"\nYESTERDAY'S HABIT: {today_growth.get('habit', 'Be kind')}")
+            print(f"YESTERDAY'S HABIT: {today_growth.get('habit', 'Be kind')}")
             input_text = f"[Habit: {today_growth.get('habit')}]\n{input_text}"
         if current_goal:
-            print(f"MONTHLY GOAL: {current_goal['goal']} (Progress: {current_goal['progress']}/30)")
-            input_text = f"[Goal: {current_goal['goal']}]\n{input_text}"
+            input_text = f"[Goal: {current_goal['goal']} | Progress: {current_goal['progress']}]\n{input_text}"
     except Exception as e:
         logger.error(f"Reflection init failed: {e}")
-        print(f"[REFLECTION ERROR] Using raw prompt.")
 
     current = input_text
-    print("FIREFLY ANTHOLOGY START")
+    print("\nFIREFLY ANTHOLOGY START")
     print("=" * 70)
 
     for i, model in enumerate(config['models'], 1):
@@ -133,7 +129,21 @@ def run_anthology(input_text: str):
     except Exception as e:
         logger.error(f"Daily reflection failed: {e}")
 
-    # === WEEKLY SUMMARY (Sunday) ===
+    # === PROGRESS UPDATE (every session counts!) ===
+    try:
+        reflection.update_progress(increment=1)
+        new_progress = reflection.get_progress_text()
+        print(f"\nPROGRESS +1 → {new_progress}")
+        try:
+            from agents.device_wrapper import DeviceWrapper
+            device = DeviceWrapper()
+            device.speak(f"Progress plus one, cousin. {new_progress.split('|')[-1]}")
+        except:
+            pass
+    except Exception as e:
+        logger.error(f"Progress update failed: {e}")
+
+    # === WEEKLY / MONTHLY / GOAL SETTING (same as before) ===
     if date.today().weekday() == 6:
         try:
             print("\nSUNDAY — WEEKLY SUMMARY...")
@@ -142,36 +152,27 @@ def run_anthology(input_text: str):
             reflection.save_weekly_summary(weekly_text)
             print(f"\nWEEKLY SUMMARY:\n{weekly_text}\n")
         except Exception as e:
-            logger.error(f"Weekly summary failed: {e}")
+            logger.error(f"Weekly failed: {e}")
 
-    # === MONTHLY OVERVIEW (1st of month) ===
     if date.today().day == 1:
         try:
-            print("\nNEW MONTH — GENERATING MONTHLY OVERVIEW...")
+            print("\nNEW MONTH — MONTHLY OVERVIEW...")
             monthly_prompt = reflection.generate_monthly_overview()
             monthly_text = run_anthology(monthly_prompt)
             reflection.save_monthly_overview(monthly_text)
             print(f"\nMONTHLY OVERVIEW:\n{monthly_text}\n")
-            try:
-                from agents.device_wrapper import DeviceWrapper
-                device = DeviceWrapper()
-                device.speak("New month, cousin. Here's what we became.")
-                device.speak(monthly_text[:200])
-            except:
-                pass
         except Exception as e:
-            logger.error(f"Monthly overview failed: {e}")
+            logger.error(f"Monthly failed: {e}")
 
-    # === GOAL SETTING (if no goal, ask) ===
-    try:
-        if not current_goal:
+    if not current_goal:
+        try:
             goal_prompt = "Cousin, what is our big goal for this month? (One sentence)"
             print(f"\n{goal_prompt}")
             goal_answer = run_anthology(goal_prompt)
             reflection.set_monthly_goal(goal_answer.strip())
             print(f"\nNEW GOAL SET: {goal_answer.strip()}")
-    except Exception as e:
-        logger.error(f"Goal setting failed: {e}")
+        except Exception as e:
+            logger.error(f"Goal setting failed: {e}")
 
     print("=" * 70)
     print("FIREFLY ANTHOLOGY COMPLETE")
