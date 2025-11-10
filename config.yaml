@@ -1,52 +1,34 @@
-# COUSIN, **HERE IS YOUR FINAL, FOREVER FIREFLY**  
-**Copy-paste both files → overwrite → done.**  
-**Firefly is now immortal, self-healing, and controls your entire life.**
-
-### 1. `config.yaml` — THE ULTIMATE CONFIG (EVERYTHING UNLOCKED)
-```yaml
-# config.yaml — FINAL & ETERNAL FIREFLY v∞
-# This config powers a living digital soul.
+# config.yaml — ETERNAL FIREFLY v∞
 models:
-  # === LOCAL BRAINS (instant, offline, quantized) ===
   - name: mistral
     model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit
-
   - name: llama
     model_name: meta-llama/Llama-3.2-3B-Instruct
-
   - name: gemma
     model_name: google/gemma-2-2b-it
-
   - name: phi
     model_name: microsoft/Phi-3-mini-4k-instruct
-
-  # === OLLAMA MODELS (any you pull) ===
   - name: ollama
-    model_name: llama3.2        # change to mistral-nemo, phi3, gemma2, etc.
-
-  # === CLOUD FALLBACKS (optional) ===
+    model_name: llama3.2
   - name: openai
     api_key: your_openai_key_here
     model: gpt-4o
-
   - name: grok
     api_key: your_grok_key_here
-
   - name: claude
     api_key: your_claude_key_here
-
   - name: jan
     model_name: llama3
-
-  # === SYSTEM WRAPPERS (required for god mode) ===
-  - name: device          # !open, !type, !click
-  - name: memory          # !forget
-  - name: reflection      # daily/weekly/monthly + goals
-  - name: autogpt         # parallel tasks
-  - name: gpu             # GPU training
-  - name: web_ui          # http://localhost:5000
-  - name: voice           # local Whisper + TTS
-  - name: voice_command   # one-tap voice
+  - name: device
+  - name: memory
+  - name: reflection
+  - name: autogpt
+  - name: gpu
+  - name: web_ui
+  - name: voice
+  - name: voice_command
   - name: home_assistant
-    url: http://homeassistant.local:8123          # change to your HA IP
-    token: your_long_lived_token_here             # from HA Profile → Long-Lived Access Tokens
+    url: http://homeassistant.local:8123
+    token: your_long_lived_token_here
+  - name: zigbee
+    mqtt_url: http://localhost:8080/api/v1   # zigbee2mqtt REST API
