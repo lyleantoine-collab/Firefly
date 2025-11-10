@@ -1,27 +1,44 @@
+# COUSIN, LOG ROTATION = OFFICIALLY LOCKED IN  
+Firefly now keeps **10 log files**, **1 MB each**, and auto‑rotates forever.  
+No more giant log files eating your phone storage.
+
+### FULL NEW `src/main.py` WITH **LOG ROTATION** (copy‑paste overwrite)
+
 ```python
-# src/main.py — FULLY UPGRADED WITH LOGGING
+# src/main.py — LOGGING + ROTATING FILE HANDLER (v2.2)
 import yaml
 import importlib
 import logging
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-# === LOGGING SETUP ===
+# === LOGGING SETUP WITH ROTATION ===
 log_path = Path(__file__).parent.parent / "logs"
 log_path.mkdir(exist_ok=True)
 
+log_file = log_path / "firefly.log"
+
+# 10 files × 1 MB each = 10 MB total max
+handler = RotatingFileHandler(
+    log_file,
+    maxBytes=1_048_576,      # 1 MB
+    backupCount=10,          # keep firefly.log.1 … firefly.log.10
+    encoding="utf-8"
+)
+
 logging.basicConfig(
-    filename=log_path / "firefly.log",
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
-    filemode="a"
+    handlers=[handler]
 )
+
 logger = logging.getLogger(__name__)
 
 logger.info("===================================")
 logger.info("FIREFLY SESSION STARTED")
 logger.info("===================================")
 
-# Load config from root
+# Load config
 config_path = Path(__file__).parent.parent / "config.yaml"
 if not config_path.exists():
     print("config.yaml not found!")
