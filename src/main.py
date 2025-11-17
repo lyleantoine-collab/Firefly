@@ -1,199 +1,115 @@
-
-# src/main.py — FIREFLY v∞ + VOICELOCK (FULL BRAIN, VOICE-GATED)
-import yaml
-import importlib
-import logging
-from logging.handlers import RotatingFileHandler
+# FIREFLY v∞ FINAL (ZAPIER + ALL + TINY COMMENTS)
+import yaml, importlib, logging, time, threading, sys, os
 from pathlib import Path
-from datetime import date, datetime
-import time
-import threading
-import sys
+from logging.handlers import RotatingFileHandler
 
-# === VOICELOCK: Only YOU wake Firefly ===
-sys.path.append('/storage/emulated/0/Download/Firefly/voicelock')
+L = importlib.import_module  # Lazy
+sys.path.append('modules/voicelock')
+
+# VoiceLock
 try:
-    from voicelock import VoiceLock
-    lock = VoiceLock(passphrase="newfoundland-fog-2025")
-    print("\nSay 'Woof, cousin' to wake Firefly...")
-    if not lock.verify(prompt="Woof, cousin"):
-        print("Not you. Firefly stays quiet.")
-        exit()
-    print("It's you, cousin! Firefly is awake.\n")
-    VOICELOCK_OK = True
-except Exception as e:
-    print(f"VoiceLock failed ({e}). Starting without gate...\n")
-    VOICELOCK_OK = False
+    lock = L('voicelock').VoiceLock(passphrase="newfoundland-fog-2025")
+    print("\nSay 'Woof, cousin'...")
+    if not lock.verify(prompt="Woof, cousin"): print("Not you."); exit()
+    print("It's you!\n")
+except: print("No VoiceLock\n")
 
-# === LOGGING ===
-log_path = Path(__file__).parent.parent / "logs"
-log_path.mkdir(exist_ok=True)
-handler = RotatingFileHandler(log_path / "firefly.log", maxBytes=1_048_576, backupCount=10, encoding="utf-8")
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s", handlers=[handler])
-logger = logging.getLogger(__name__)
-logger.info("===================================")
-logger.info("FIREFLY SESSION STARTED — v∞ + VOICELOCK")
-logger.info("===================================")
+# Log
+Path(__file__).parent.parent.joinpath("logs").mkdir(exist_ok=True)
+logging.basicConfig(handlers=[RotatingFileHandler("logs/firefly.log", maxBytes=1<<20, backupCount=3)], level=logging.INFO)
+log = logging.getLogger(__name__); log.info("FIREFLY FINAL")
 
-# === LOAD CONFIG ===
-config_path = Path(__file__).parent.parent / "config.yaml"
-if not config_path.exists():
-    print("config.yaml missing! Cannot start.")
-    exit(1)
-with open(config_path, 'r') as f:
-    config = yaml.safe_load(f)
+# Config
+cfg = yaml.safe_load(open(Path(__file__).parent.parent / "config.yaml"))
 
-# === DYNAMIC WRAPPER LOADER ===
-def load_wrapper(name: str, params: dict):
+# Cache
+C = {}
+W = lambda n, **p: C.setdefault(n, getattr(L(f"agents.{n}_wrapper"), f"{n.capitalize()}Wrapper")(**p))
+
+# Run
+def run(m):
+    log.info(f"In: {m[:40]}")
+    c = m
+
+    # Reflection
+    try: r = W('reflection'); c = f"[Habit: {r.get_today().get('habit','kind')}]\n{c}"; print(f"\n{r.get_progress_text()}")
+    except: pass
+
+    print("\nRUN"); print("="*30)
+
+    # Models
+    for md in cfg['models']:
+        n = md['name']
+        if n in ["device","memory","voice","home_assistant","zigbee","z_wave","mqtt","matter","thread","homekit","googlehome","alexa","ifttt","zapier"]: continue
+        print(f"[{n.upper()}]")
+        try: c = W(n, **md.get('params',{})).call(c)
+        except Exception as e: c += f"\n[ERR {n}] {e}"
+
+    cmd = c.lower()
+
+    # Voice
+    try: v = W('voice').VoiceWrapper()
+    except: v = None
+
+    # Apps
     try:
-        module = importlib.import_module(f"agents.{name}_wrapper")
-        wrapper_class = getattr(module, f"{name.capitalize()}Wrapper")
-        return wrapper_class(**params)
-    except Exception as e:
-        logger.error(f"Wrapper load failed: {name} → {e}")
-        return None
+        a = W('app_automation').AppAutomation()
+        d = W('device').DeviceWrapper()
+        if "!auto" in cmd: print(f"AUTO: {a.automate_task(cmd.split('!auto',1)[1].strip())}")
+        if "!open" in cmd: d.open_app(cmd.split('!open',1)[1].strip().split()[0])
+        if "!type" in cmd: d.type_text(cmd.split('!type',1)[1].strip())
+        if "!click" in cmd: xy = cmd.split('!click',1)[1].strip().split()[:2]; d.click(int(xy[0]), int(xy[1]))
+    except: pass
 
-# === MAIN ANTHOLOGY ENGINE ===
-def run_anthology(input_text: str):
-    logger.info(f"New prompt: {input_text[:200]}")
+    # Memory
+    try: if "!forget" in cmd: print(W('memory').MemoryWrapper().forget(cmd.split('!forget',1)[1].strip().split()[0]))
+    except: pass
 
+    # Smart Home
+    try: if "!ha" in cmd: print(f"HA: {W('home_assistant', url=cfg['home_assistant']['url'], token=cfg['home_assistant']['token']).HomeAssistantWrapper().toggle_entity(cmd.split('!ha',1)[1].strip())}")
+    except: pass
+    try: if "!mqtt" in cmd: print(f"MQTT: {W('mqtt', host=cfg['mqtt']['host'], port=cfg['mqtt']['port']).MQTTWrapper().publish(cmd.split('!mqtt',1)[1].strip(), 'firefly')}")
+    except: pass
+    try: if "!zigbee" in cmd: print(f"ZIGBEE: {W('zigbee', port=cfg['zigbee']['port']).ZigbeeWrapper().toggle(cmd.split('!zigbee',1)[1].strip())}")
+    except: pass
+    try: if "!zwave" in cmd: print(f"Z-WAVE: {W('z_wave', port=cfg['z_wave']['port']).ZWaveWrapper().switch(cmd.split('!zwave',1)[1].strip())}")
+    except: pass
+    try: if "!matter" in cmd: print(f"MATTER: {W('matter').MatterWrapper().control(cmd.split('!matter',1)[1].strip())}")
+    except: pass
+    try: if "!thread" in cmd: print(f"THREAD: {W('thread').ThreadWrapper().execute(cmd.split('!thread',1)[1].strip())}")
+    except: pass
+    try: if "!homekit" in cmd: print(f"HOMEKIT: {W('homekit').HomeKitWrapper().toggle(cmd.split('!homekit',1)[1].strip())}")
+    except: pass
+    try: if "!google" in cmd: print(f"GOOGLE: {W('googlehome', project_id=cfg['googlehome']['project_id'], credentials=cfg['googlehome']['credentials']).GoogleHomeWrapper().control(cmd.split('!google',1)[1].strip())}")
+    except: pass
+    try: if "!alexa" in cmd: print(f"ALEXA: {W('alexa', client_id=cfg['alexa']['client_id'], client_secret=cfg['alexa']['client_secret']).AlexaWrapper().control(cmd.split('!alexa',1)[1].strip())}")
+    except: pass
+    try: if "!ifttt" in cmd: print(f"IFTTT: {W('ifttt', key=cfg['ifttt']['key']).IFTTTWrapper().trigger(cmd.split('!ifttt',1)[1].strip())}")
+    except: pass
+
+    # === ZAPIER (NEW)
     try:
-        # === REFLECTION SYSTEM ===
-        try:
-            from agents.reflection_wrapper import ReflectionWrapper
-            reflection = ReflectionWrapper()
-            today_growth = reflection.get_today()
-            current_goal = reflection.get_current_goal()
-            progress_text = reflection.get_progress_text()
-            print(f"\n{progress_text}")
-            if today_growth:
-                print(f"YESTERDAY'S HABIT: {today_growth.get('habit', 'Be kind')}")
-                input_text = f"[Habit: {today_growth.get('habit')}]\n{input_text}"
-            if current_goal:
-                input_text = f"[Goal: {current_goal['goal']} | Progress: {current_goal['progress']}]\n{input_text}"
-        except Exception as e:
-            logger.error(f"Reflection failed: {e}")
+        if "!zap" in cmd:
+            zap = cmd.split("!zap",1)[1].strip()
+            res = W('zapier', api_key=cfg['zapier']['api_key']).ZapierWrapper().run(zap)
+            print(f"ZAPIER: {res}")
+            if v: v.speak(f"Zap {zap} ran.")
+    except Exception as e: log.error(f"Zapier: {e}")
 
-        current = input_text
-        print("\nFIREFLY ANTHOLOGY START")
-        print("=" * 70)
+    print("="*30); print("DONE")
+    return c
 
-        # === MODEL CHAIN ===
-        for i, model in enumerate(config['models'], 1):
-            name = model['name']
-            if name in ["device", "memory", "reflection", "autogpt", "gpu", "web_ui", "voice", "voice_command",
-                        "home_assistant", "zigbee", "z_wave", "mqtt", "matter", "thread"]:
-                continue
+# Web UI
+try: threading.Thread(target=W('web_ui').start_web_ui, daemon=True).start(); print("WEB → http://localhost:5000")
+except: pass
 
-            print(f"[{i}] Running {name.upper()}...")
-            try:
-                params = {}
-                if name in ["openai", "grok", "claude"]:
-                    params = {"api_key": model.get('api_key', '')}
-                    if name == "openai":
-                        params["model"] = model.get("model", "gpt-4o")
-                elif name in ["jan", "mistral", "llama", "gemma", "phi", "ollama"]:
-                    params = {"model_name": model.get("model_name", "default")}
-
-                wrapper = load_wrapper(name, params)
-                if wrapper:
-                    response = wrapper.call(current)
-                    logger.info(f"{name.upper()} → {response[:300]}")
-                    print(f"{name.upper()} → {response}\n")
-                    current = response
-            except Exception as e:
-                logger.error(f"Model {name} failed: {e}")
-                current += f"\n[ERROR in {name.upper()}] {e}"
-
-        # === VOICE SYSTEM ===
-        try:
-            from agents.voice_wrapper import VoiceWrapper
-            voice = VoiceWrapper()
-        except:
-            voice = None
-
-        cmd = current.lower()
-
-        # === APP AUTOMATION ===
-        try:
-            from agents.app_automation import AppAutomation
-            if "!auto" in cmd:
-                task = cmd.split("!auto", 1)[1].strip()
-                auto = AppAutomation()
-                result = auto.automate_task(task)
-                print(f"AUTO TASK: {result}")
-                if voice: voice.speak("I did it myself, cousin. Woof.")
-        except Exception as e:
-            logger.error(f"App automation failed: {e}")
-
-        # === DEVICE CONTROL ===
-        try:
-            from agents.device_wrapper import DeviceWrapper
-            device = DeviceWrapper()
-            if "!open" in cmd:
-                app = cmd.split("!open", 1)[1].strip().split()[0]
-                device.open_app(app)
-                print(f"OPENED: {app}")
-                if voice: voice.speak(f"Opening {app}")
-            if "!type" in cmd:
-                text = cmd.split("!type", 1)[1].strip()
-                device.type_text(text)
-                print(f"TYPED: {text}")
-            if "!click" in cmd:
-                coords = cmd.split("!click", 1)[1].strip().split()[:2]
-                if len(coords) == 2:
-                    device.click(int(coords[0]), int(coords[1]))
-                    print(f"CLICKED: {coords}")
-        except Exception as e:
-            logger.error(f"Device control failed: {e}")
-
-        # === MEMORY ===
-        try:
-            from agents.memory_wrapper import MemoryWrapper
-            memory = MemoryWrapper()
-            if "!forget" in cmd:
-                keyword = cmd.split("!forget", 1)[1].strip().split()[0] if " " in cmd.split("!forget", 1)[1] else "pirate"
-                result = memory.forget(keyword)
-                print(result)
-                if voice: voice.speak(f"I forgot {keyword}, cousin.")
-        except Exception as e:
-            logger.error(f"!forget failed: {e}")
-
-        print("=" * 70)
-        print("FIREFLY ANTHOLOGY COMPLETE")
-        logger.info("FIREFLY ANTHOLOGY COMPLETE")
-        return current
-
-    except KeyboardInterrupt:
-        logger.info("Stopped by cousin")
-        if 'voice' in locals() and voice:
-            voice.speak("Goodbye, cousin. Woof.")
-        return "Stopped by cousin."
-    except Exception as e:
-        logger.critical(f"FIREFLY CRASHED: {e}", exc_info=True)
-        if 'voice' in locals() and voice:
-            voice.speak("System error. Restarting in 5 seconds.")
-        time.sleep(5)
-        return run_anthology(input_text)
-
-# === AUTO-START WEB UI ===
-try:
-    from agents.web_ui import start_web_ui
-    threading.Thread(target=start_web_ui, daemon=True).start()
-    print("WEB UI STARTED → http://localhost:5000")
-except Exception as e:
-    logger.warning(f"Web UI failed to start: {e}")
-
-# === MAIN ENTRY POINT ===
+# Main
 if __name__ == "__main__":
-    # Wake word
-    os.system('termux-tts-speak "Woof cousin" 2>/dev/null || print("Woof cousin")')
-    
-    print("\nFirefly ready! Talk to me (type bye to quit):")
-    while True:
+    os.system('termux-tts-speak "Woof cousin" 2>/dev/null || echo "Woof cousin"')
+    print("\nReady! (bye to quit)")
+    while 1:
         try:
-            msg = input("You: ")
-            if msg.lower() in ["bye", "quit", "exit"]: break
-            run_anthology(msg)
-        except:
-            break
+            i = input("You: ")
+            if i.lower() in ["bye","quit","exit"]: break
+            run(i)
+        except: break
