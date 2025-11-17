@@ -1,5 +1,11 @@
-# config.yaml — TOTAL DOMINATION v∞
+# config.yaml — Firefly v∞ (VoiceLock + All Agents)
+
+# ────────────────────────────────
+# AI MODELS (local first)
+# ────────────────────────────────
 models:
+  - name: ollama
+    model_name: llama3.2:3b               # default local brain
   - name: mistral
     model_name: openaccess-ai-collective/mistral-7b-instruct-v0.3-4bit
   - name: llama
@@ -8,42 +14,58 @@ models:
     model_name: google/gemma-2-2b-it
   - name: phi
     model_name: microsoft/Phi-3-mini-4k-instruct
-  - name: ollama
-    model_name: llama3.2
-  - name: openai
-    api_key: your_openai_key_here
-    model: gpt-4o
-  - name: grok
-    api_key: your_grok_key_here
-  - name: claude
-    api_key: your_claude_key_here
-  - name: jan
-    model_name: llama3
+
+# ────────────────────────────────
+# OPTIONAL CLOUD (comment out if not using)
+# ────────────────────────────────
+  # - name: openai
+  #   api_key: your_openai_key_here
+  #   model: gpt-4o
+  # - name: grok
+  #   api_key: your_grok_key_here
+  # - name: claude
+  #   api_key: your_claude_key_here
+
+# ────────────────────────────────
+# CORE AGENTS (always loaded)
+# ────────────────────────────────
   - name: device
   - name: memory
   - name: reflection
-  - name: autogpt
-  - name: gpu
-  - name: web_ui
   - name: voice
-  - name: voice_command
+  - name: app_automation
+  - name: web_ui
+
+# ────────────────────────────────
+# SMART HOME (fill your own keys)
+# ────────────────────────────────
   - name: home_assistant
-    url: http://homeassistant.local:8123
+    url: http://homeassistant.local:8123   # change to your HA IP
     token: your_long_lived_token_here
-  - name: zigbee
-    mqtt_url: http://localhost:8080/api/v1
-  - name: z_wave
-    ha_url: http://homeassistant.local:8123
-    token: your_long_lived_token_here
+
   - name: mqtt
-    broker: localhost
+    host: localhost
     port: 1883
     username: your_mqtt_user
     password: your_mqtt_pass
-  - name: matter
-    ha_url: http://homeassistant.local:8123
-    token: your_long_lived_token_here
-  - name: web_ui
-    - name: thread
-      ha_url: http://homeassistant.local:8123
-      token: your_long_lived_token_here
+
+  - name: zigbee
+    port: /dev/ttyUSB0                     # or your coordinator path
+
+  - name: z_wave
+    port: /dev/ttyUSB1
+
+  - name: homekit
+  - name: googlehome
+    project_id: your_google_project
+    credentials: path/to/google-credentials.json
+
+  - name: alexa
+    client_id: your_alexa_client_id
+    client_secret: your_alexa_client_secret
+
+  - name: ifttt
+    key: your_ifttt_webhook_key
+
+  - name: zapier
+    api_key: your_zapier_webhook_key
