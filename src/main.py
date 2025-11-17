@@ -1,12 +1,13 @@
-# FIREFLY v∞ FINAL (ZAPIER + ALL + TINY COMMENTS)
+# FIREFLY v∞ FINAL (ZAPIER + ALL + TINY COMMENTS + VOICELock HOOK)
 import yaml, importlib, logging, time, threading, sys, os
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-L = importlib.import_module  # Lazy
-sys.path.append('modules/voicelock')
+# Lazy load
+L = importlib.import_module
 
-# VoiceLock
+# VoiceLock (hook)
+sys.path.append('modules/voicelock')
 try:
     lock = L('voicelock').VoiceLock(passphrase="newfoundland-fog-2025")
     print("\nSay 'Woof, cousin'...")
@@ -87,7 +88,7 @@ def run(m):
     try: if "!ifttt" in cmd: print(f"IFTTT: {W('ifttt', key=cfg['ifttt']['key']).IFTTTWrapper().trigger(cmd.split('!ifttt',1)[1].strip())}")
     except: pass
 
-    # === ZAPIER (NEW)
+    # === ZAPIER
     try:
         if "!zap" in cmd:
             zap = cmd.split("!zap",1)[1].strip()
