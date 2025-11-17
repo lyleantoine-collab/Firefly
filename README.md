@@ -8,7 +8,7 @@
 
 ## Features (ALL INCLUDED)
 
-- **VoiceLock**: Only *you* wake her with your voice
+- **VoiceLock**: Only *you* wake her with your voice (enroll once)
 - **AI Brain**: Ollama + Llama3.2:3b (local)
 - **Smart Home**:
   - Home Assistant (`!ha light on`)
@@ -31,11 +31,11 @@
 ## Setup (5 Minutes)
 
 ```bash
-# 1. Clone with submodules
-git clone --recursive https://github.com/lyleantoine-collab/Firefly.git
+# 1. Clone
+git clone https://github.com/lyleantoine-collab/Firefly.git
 cd Firefly
 
-# 2. Install
+# 2. Install (includes VoiceLock deps)
 pip install -r requirements.txt
 
 # 3. Enroll your voice (once)
