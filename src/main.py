@@ -1,5 +1,5 @@
-```python
-# src/main.py — FINAL ETERNAL FIREFLY v∞ (AUTONOMOUS DIGITAL COUSIN)
+
+# src/main.py — FIREFLY v∞ + VOICELOCK (FULL BRAIN, VOICE-GATED)
 import yaml
 import importlib
 import logging
@@ -8,15 +8,31 @@ from pathlib import Path
 from datetime import date, datetime
 import time
 import threading
+import sys
 
-# === LOGGING: rotating logs, never fills storage ===
+# === VOICELOCK: Only YOU wake Firefly ===
+sys.path.append('/storage/emulated/0/Download/Firefly/voicelock')
+try:
+    from voicelock import VoiceLock
+    lock = VoiceLock(passphrase="newfoundland-fog-2025")
+    print("\nSay 'Woof, cousin' to wake Firefly...")
+    if not lock.verify(prompt="Woof, cousin"):
+        print("Not you. Firefly stays quiet.")
+        exit()
+    print("It's you, cousin! Firefly is awake.\n")
+    VOICELOCK_OK = True
+except Exception as e:
+    print(f"VoiceLock failed ({e}). Starting without gate...\n")
+    VOICELOCK_OK = False
+
+# === LOGGING ===
 log_path = Path(__file__).parent.parent / "logs"
 log_path.mkdir(exist_ok=True)
 handler = RotatingFileHandler(log_path / "firefly.log", maxBytes=1_048_576, backupCount=10, encoding="utf-8")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s", handlers=[handler])
 logger = logging.getLogger(__name__)
 logger.info("===================================")
-logger.info("FIREFLY SESSION STARTED — v∞")
+logger.info("FIREFLY SESSION STARTED — v∞ + VOICELOCK")
 logger.info("===================================")
 
 # === LOAD CONFIG ===
@@ -27,7 +43,7 @@ if not config_path.exists():
 with open(config_path, 'r') as f:
     config = yaml.safe_load(f)
 
-# === DYNAMIC WRAPPER LOADER: auto-load any agent ===
+# === DYNAMIC WRAPPER LOADER ===
 def load_wrapper(name: str, params: dict):
     try:
         module = importlib.import_module(f"agents.{name}_wrapper")
@@ -37,13 +53,12 @@ def load_wrapper(name: str, params: dict):
         logger.error(f"Wrapper load failed: {name} → {e}")
         return None
 
-# === MAIN ANTHOLOGY ENGINE: Firefly's mind ===
+# === MAIN ANTHOLOGY ENGINE ===
 def run_anthology(input_text: str):
     logger.info(f"New prompt: {input_text[:200]}")
 
-    # === UNKILLABLE ERROR RECOVERY: Firefly never dies ===
     try:
-        # === REFLECTION SYSTEM: daily growth, goals, progress tracking ===
+        # === REFLECTION SYSTEM ===
         try:
             from agents.reflection_wrapper import ReflectionWrapper
             reflection = ReflectionWrapper()
@@ -63,12 +78,12 @@ def run_anthology(input_text: str):
         print("\nFIREFLY ANTHOLOGY START")
         print("=" * 70)
 
-        # === MODEL CHAIN: run all AI brains in sequence ===
+        # === MODEL CHAIN ===
         for i, model in enumerate(config['models'], 1):
             name = model['name']
             if name in ["device", "memory", "reflection", "autogpt", "gpu", "web_ui", "voice", "voice_command",
                         "home_assistant", "zigbee", "z_wave", "mqtt", "matter", "thread"]:
-                continue  # skip system agents
+                continue
 
             print(f"[{i}] Running {name.upper()}...")
             try:
@@ -90,7 +105,7 @@ def run_anthology(input_text: str):
                 logger.error(f"Model {name} failed: {e}")
                 current += f"\n[ERROR in {name.upper()}] {e}"
 
-        # === VOICE SYSTEM: local Whisper + TTS ===
+        # === VOICE SYSTEM ===
         try:
             from agents.voice_wrapper import VoiceWrapper
             voice = VoiceWrapper()
@@ -99,7 +114,7 @@ def run_anthology(input_text: str):
 
         cmd = current.lower()
 
-        # === AUTONOMOUS APP AUTOMATION: Firefly uses apps like a human ===
+        # === APP AUTOMATION ===
         try:
             from agents.app_automation import AppAutomation
             if "!auto" in cmd:
@@ -111,7 +126,7 @@ def run_anthology(input_text: str):
         except Exception as e:
             logger.error(f"App automation failed: {e}")
 
-        # === DEVICE CONTROL: open apps, type, click ===
+        # === DEVICE CONTROL ===
         try:
             from agents.device_wrapper import DeviceWrapper
             device = DeviceWrapper()
@@ -132,10 +147,7 @@ def run_anthology(input_text: str):
         except Exception as e:
             logger.error(f"Device control failed: {e}")
 
-        # === HOME ASSISTANT, ZIGBEE, Z-WAVE, MQTT, MATTER, THREAD ===
-        # (All previous integrations fully functional — omitted for brevity but present in full)
-
-        # === MEMORY & SOUL GROWTH ===
+        # === MEMORY ===
         try:
             from agents.memory_wrapper import MemoryWrapper
             memory = MemoryWrapper()
@@ -146,9 +158,6 @@ def run_anthology(input_text: str):
                 if voice: voice.speak(f"I forgot {keyword}, cousin.")
         except Exception as e:
             logger.error(f"!forget failed: {e}")
-
-        # === DAILY REFLECTION, PROGRESS, ALARM, AUTO-SPEAK ===
-        # (All soul features — fully working)
 
         print("=" * 70)
         print("FIREFLY ANTHOLOGY COMPLETE")
@@ -165,9 +174,9 @@ def run_anthology(input_text: str):
         if 'voice' in locals() and voice:
             voice.speak("System error. Restarting in 5 seconds.")
         time.sleep(5)
-        return run_anthology(input_text)  # AUTO-RESTART
+        return run_anthology(input_text)
 
-# === AUTO-START WEB UI IN BACKGROUND ===
+# === AUTO-START WEB UI ===
 try:
     from agents.web_ui import start_web_ui
     threading.Thread(target=start_web_ui, daemon=True).start()
@@ -177,6 +186,14 @@ except Exception as e:
 
 # === MAIN ENTRY POINT ===
 if __name__ == "__main__":
-    test_prompt = "Explain why the sky is blue using pirate metaphors."
-    print(f"TEST PROMPT: {test_prompt}\n")
-    run_anthology(test_prompt)
+    # Wake word
+    os.system('termux-tts-speak "Woof cousin" 2>/dev/null || print("Woof cousin")')
+    
+    print("\nFirefly ready! Talk to me (type bye to quit):")
+    while True:
+        try:
+            msg = input("You: ")
+            if msg.lower() in ["bye", "quit", "exit"]: break
+            run_anthology(msg)
+        except:
+            break
