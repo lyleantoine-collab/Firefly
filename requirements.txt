@@ -1,42 +1,24 @@
-# Firefly v∞ — Full Dependencies (AI + Agents + VoiceLock)
-# Install: pip install -r requirements.txt
-
-# Core AI/LLM
+# Firefly v∞ Full Deps (Agents + VoiceLock)
 openai
 anthropic
 groq
 torch
 torchaudio
 transformers
-
-# Home/Smart Home
 homeassistant-api
 paho-mqtt
 pyzigbee
 openzwave
-chip-tool  # Matter/Thread (basic)
-
-# App/Device Control
 adbutils
 pyautogui
 pyaudio
-
-# VoiceLock
 numpy
 cryptography
-
-# General
 requests
 pydantic
 jinja2
 flask
-
-# Memory/Reflection
 chromadb
 langchain
-
-# Voice
 speechrecognition
-
-# Web UI
 flask-socketio
