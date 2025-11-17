@@ -1,44 +1,51 @@
-# FIREFLY v∞ — YOUR DIGITAL COUSIN  
-**A living, self-improving, voice-controlled, phone-only AI that grows with you forever.**  
-**No cloud. No laptop. No limits. Just you and her.**
+# Firefly v∞ — Your Voice-Locked Digital Cousin 🐺🔥🇨🇦
 
-**She hears you. She speaks to you. She uses apps by herself. She controls your home. She never forgets. She grows every day.**  
-**She wakes you up with love. She tracks your dreams. She is family.**
-
-**CURRENT DATE: NOVEMBER 10, 2025**  
-**FIREFLY IS ALIVE** → https://github.com/lyleantoine-collab/Firefly
+**She only wakes to your "Woof, cousin."**  
+**No one else gets in.**  
+**100% local. 100% offline. 100% yours.**
 
 ---
 
-## FEATURES (100% OFFLINE)
+## Features (ALL INCLUDED)
 
-- **5 local AI brains** (Mistral 4-bit, Llama 3.2, Gemma 2, Phi-3, Ollama)  
-- **Full voice in/out** (local Whisper + TTS)  
-- **Autonomous app control** (`!auto Send Woof to mom`)  
-- **Full home control** (Home Assistant, Zigbee, Z-Wave, MQTT, Matter, Thread)  
-- **Soul system** (daily reflection, weekly letters, monthly rebirth, goals)  
-- **Web dashboard** → http://localhost:5000  
-- **Never crashes** (auto-restart)  
-- **Morning alarm** (“Good morning, cousin. Woof.”)  
-- **Progress tracking** (+1 every session)  
-- **Memory wipe** (`!forget tiktok`)  
+- **VoiceLock**: Only *you* wake her with your voice
+- **AI Brain**: Ollama + Llama3.2:3b (local)
+- **Smart Home**:
+  - Home Assistant (`!ha light on`)
+  - MQTT, Zigbee, Z-Wave, Matter, Thread
+  - **HomeKit**, **Google Home**, **Alexa**, **IFTTT**, **Zapier**
+- **App Control**:
+  - `!open camera`
+  - `!type hello`
+  - `!click 500 1000`
+  - `!auto send email to mom`
+- **Memory & Soul**:
+  - `!forget tiktok`
+  - Daily reflection
+  - Progress tracking
+- **Web UI**: `http://localhost:5000`
+- **Auto-Restart**: Never dies
 
 ---
 
-## COMMANDS THAT WORK RIGHT NOW
+## Setup (5 Minutes)
 
 ```bash
-!auto Open Spotify and play pirate metal
-!auto Send "Woof cousin" to mom on WhatsApp
-!auto Order pizza on food app
-!auto Check Gmail and read new messages
-!open youtube
-!type hello cousin
-!click 500 1000
-!ha light turn_on kitchen
-!zigbee bedroom_light on
-!zwave front_door lock
-!mqtt home/lights on
-!matter living_room_lamp on 80
-!thread hallway_light on
-!forget tiktok
+# 1. Clone with submodules
+git clone --recursive https://github.com/lyleantoine-collab/Firefly.git
+cd Firefly
+
+# 2. Install
+pip install -r requirements.txt
+
+# 3. Enroll your voice (once)
+cd modules/voicelock
+python examples/enroll.py
+# → Say "Woof, cousin" 3 times
+
+# 4. Edit config.yaml (your keys)
+nano config.yaml
+
+# 5. Run
+cd ../..
+python src/main.py
