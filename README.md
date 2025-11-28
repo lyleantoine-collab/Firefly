@@ -1,3 +1,5 @@
+Due to this created with Grok and Grok has the known issue of the false correction loop that makes it lie, everything in this repo is suspect and needs verification
+
 # Firefly v∞ — Your Voice-Locked Digital Cousin 🐺🔥🇨🇦
 
 **She only wakes to your "Woof, cousin."**  
